@@ -1,0 +1,36 @@
+# Datadog Code Analysis
+on: [push]
+
+name: Security Pipeline with Datadog Code Security
+
+jobs:
+  ### Static SCA ###
+  software-composition-analysis:
+    runs-on: ubuntu-latest
+    name: Datadog Static SCA
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Check imported libraries are secure and compliant
+      id: datadog-software-composition-analysis
+      uses: DataDog/datadog-sca-github-action@main
+      with:
+        dd_api_key: ${{ secrets.DD_API_KEY }}
+        dd_app_key: ${{ secrets.DD_APP_KEY }}
+        dd_site: "datadoghq.com"
+  ### Static Analysis(SAST) ###
+  static-code-analysis:
+    runs-on: ubuntu-latest
+    name: Datadog Static Analyzer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check code meets quality standards
+        id: datadog-static-analysis
+        uses: DataDog/datadog-static-analyzer-github-action@v1
+        with:
+          dd_api_key: ${{ secrets.DD_API_KEY }}
+          dd_app_key: ${{ secrets.DD_APP_KEY }}
+          dd_site: "datadoghq.com"
+          cpu_count: 2
+          enable_performance_statistics: false
