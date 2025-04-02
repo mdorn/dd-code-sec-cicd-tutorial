@@ -16,6 +16,7 @@ def get_current_time():
 
 @app.route('/random')
 def get_random_numbers():
+    # leaving the vuln here
     numbers = [random.random() for _ in range(10)]
     # numbers = [random.randint(0, 5) for _ in range(10)]
     response = {
