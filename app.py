@@ -2,7 +2,7 @@ from flask import Flask
 import time
 import random
 
-VERSION=1
+VERSION=2
 
 app = Flask(__name__)
 
