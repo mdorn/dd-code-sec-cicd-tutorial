@@ -107,6 +107,6 @@ jobs:
           aws ecs update-service \
             --cluster ${{ secrets.AWS_ECS_CLUSTER }} \
             --service ${{ secrets.AWS_ECS_SERVICE }} \
-            --task-definition "${{ secrets.IMAGE_NAME }}:$REVISION" \
+            --task-definition "${{ secrets.AWS_ECS_SERVICE }}:$REVISION" \
             --desired-count 1 \
             --force-new-deployment
