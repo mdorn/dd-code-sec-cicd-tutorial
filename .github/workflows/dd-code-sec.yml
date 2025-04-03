@@ -101,7 +101,7 @@ jobs:
       - name: Deploy to ECS Fargate
         run: |
           ls
-          echo "${{ github.workspace }}"
+          cat app.py
           REVISION=$(aws ecs register-task-definition --family ${{ secrets.AWS_ECS_SERVICE }} \
               --cli-input-json file://${{ github.workspace }}/infra/fargate_task_definition.json --query "taskDefinition.revision")
           aws ecs update-service \
