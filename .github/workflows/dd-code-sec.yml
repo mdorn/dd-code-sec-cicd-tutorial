@@ -34,3 +34,26 @@ jobs:
           dd_site: "datadoghq.com"
           cpu_count: 2
           enable_performance_statistics: false
+  ### Quality Gate ####
+  quality-gate-datadog-ci:
+    name: Datadog Quality Gate
+    runs-on: ubuntu-latest
+    needs: [software-composition-analysis, static-code-analysis]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install datadog-ci
+        run: npm install -g @datadog/datadog-ci
+      - name: Find datadog-ci path
+        run: which datadog-ci
+      - name: Run datadog-ci command
+        run: |
+          export PATH=$(npm bin -g):$PATH
+          DD_SITE=${{ secrets.DD_SITE }} \
+          DD_API_KEY=${{ secrets.DD_API_KEY }} \
+          DD_APP_KEY=${{ secrets.DD_APP_KEY }} \
+          datadog-ci gate evaluate

@@ -2,7 +2,13 @@ from flask import Flask
 import time
 import random
 
+VERSION=1
+
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "App version {}".format(VERSION)
 
 @app.route('/time')
 def get_current_time():
