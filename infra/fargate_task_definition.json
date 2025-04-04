@@ -2,8 +2,8 @@
   "executionRoleArn": "arn:aws:iam::897722680419:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "notes-app",
-      "image": "897722680419.dkr.ecr.us-east-2.amazonaws.com/dd-sec-tutorial/ddsec-simple-vuln-app",
+      "name": "dd-sec-simple-vuln-app",
+      "image": "897722680419.dkr.ecr.us-east-2.amazonaws.com/dd-sec-demo-repo/dd-sec-simple-vuln-app:latest",
       "cpu": 512,
       "memory": 2048,
       "portMappings": [
@@ -20,7 +20,7 @@
       "systemControls": []
     }
   ],
-  "family": "service",
+  "family": "dd-sec-demo-service",
   "networkMode": "awsvpc",
   "volumes": [],
   "placementConstraints": [],
