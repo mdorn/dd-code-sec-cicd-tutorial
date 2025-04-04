@@ -12,7 +12,7 @@ This tutorial demonstrates incorporating Datadog Code Security into a CI/CD pipe
 
 ### Github 
 
-Fork this repo, and clone it locally - you'll be making commits to the repo, so you'll likely want to use SSH.
+Clone this repo to your Github account and check it out locally.
 
 #### Repository secrets
 
