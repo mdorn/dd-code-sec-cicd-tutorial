@@ -27,8 +27,8 @@ def get_records():
     cursor.execute("INSERT INTO users (username, password) VALUES ('foo', 'P@ssw0rd#')")
     cursor.execute("INSERT INTO users (username, password) VALUES ('bar', 'S3cr3t!')")
     # SQLi example: http://localhost:5000/users?id=1%20OR%201=1
-    cursor.execute("SELECT * FROM users WHERE id={}".format(uid))  # VULNERABLE
-    # cursor.execute("SELECT * FROM users WHERE id= ?", [uid])  # NOT VULNERABLE: parameterized query
+    # cursor.execute("SELECT * FROM users WHERE id={}".format(uid))  # VULNERABLE
+    cursor.execute("SELECT * FROM users WHERE id= ?", [uid])  # NOT VULNERABLE: parameterized query
     result = jsonify(cursor.fetchall())
     conn.close()
     return result
@@ -39,8 +39,8 @@ def get_random_numbers():
     '''Function with intentional misuse of random.randrange function'''
     id = 1
     # sql = f"SELECT id,description FROM notes WHERE id = {id}"
-    numbers = [random.randrange(10) for _ in range(10)]  # VULNERABLE
-    # numbers = [random.randint(0, 5) for _ in range(10)]  # NOT VULNERABLE (better yet, use secrets module)
+    # numbers = [random.randrange(10) for _ in range(10)]  # VULNERABLE
+    numbers = [random.randint(0, 5) for _ in range(10)]  # NOT VULNERABLE (better yet, use secrets module)
     response = {
         "data": {"random_number": numbers},
         "message": "success"
