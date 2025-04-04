@@ -3,7 +3,7 @@ import time
 import random
 import sqlite3
 
-VERSION=1
+VERSION=2
 app = Flask(__name__)
 
 @app.route('/')
@@ -40,7 +40,7 @@ def get_random_numbers():
     id = 1
     # sql = f"SELECT id,description FROM notes WHERE id = {id}"
     # numbers = [random.randrange(10) for _ in range(10)]  # VULNERABLE
-    numbers = [random.randint(0, 5) for _ in range(10)]  # NOT VULNERABLE - better yet, use secrets module
+    numbers = [random.randint(0, 5) for _ in range(10)]  # NOT VULNERABLE (better yet, use secrets module)
     response = {
         "data": {"random_number": numbers},
         "message": "success"
