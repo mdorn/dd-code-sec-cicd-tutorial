@@ -1,5 +1,5 @@
 # Datadog Code Analysis
-on: [push, workflow_dispatch]
+on: [push]
 
 name: Security Pipeline with Datadog Code Security
 

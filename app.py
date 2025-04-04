@@ -3,7 +3,7 @@ import time
 import random
 import sqlite3
 
-VERSION=2
+VERSION=1
 app = Flask(__name__)
 
 @app.route('/')
