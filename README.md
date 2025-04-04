@@ -56,6 +56,8 @@ TODO
 The included Terraform code will create an ECR repo and an ECS cluster, service, and task configuration.  The deployment includes a sample container to help ensure the deployment was successful before trying to deploy our application to ECS.
 
 ```sh
+cp infra/terraform/terraform.tfvars.sample infra/terraform/terraform.tfvars
+# Optionally change the values before executing terraform ^^^ default region is us-east-2
 terraform -chdir=infra/terraform apply
 # answer "yes" to the prompt
 # after a minute or two (the IP may not be immediately available)

@@ -38,5 +38,5 @@ variable "availability_zones" {
 
 variable "app_image" {
   type = string
-  default = "dd-sec-demo"
+  default = "dd-sec-simple-vuln-app"
 }
