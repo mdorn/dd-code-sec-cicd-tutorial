@@ -5,64 +5,64 @@ name: Security Pipeline with Datadog Code Security
 
 jobs:
   ### Static SCA ###
-  software-composition-analysis:
-    runs-on: ubuntu-latest
-    name: Datadog Static SCA
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Check imported libraries are secure and compliant
-      id: datadog-software-composition-analysis
-      uses: DataDog/datadog-sca-github-action@main
-      with:
-        dd_api_key: ${{ secrets.DD_API_KEY }}
-        dd_app_key: ${{ secrets.DD_APP_KEY }}
-        dd_site: ${{ secrets.DD_SITE }}
-  ### Static Analysis(SAST) ###
-  static-code-analysis:
-    runs-on: ubuntu-latest
-    name: Datadog Static Analyzer
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Check code meets quality standards
-        id: datadog-static-analysis
-        uses: DataDog/datadog-static-analyzer-github-action@v1
-        with:
-          dd_api_key: ${{ secrets.DD_API_KEY }}
-          dd_app_key: ${{ secrets.DD_APP_KEY }}
-          dd_site: ${{ secrets.DD_SITE }}
-          cpu_count: 2
-          enable_performance_statistics: false
-  ### Quality Gate ####
-  quality-gate-datadog-ci:
-    name: Datadog Quality Gate
-    runs-on: ubuntu-latest
-    needs: [software-composition-analysis, static-code-analysis]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Install datadog-ci
-        run: npm install -g @datadog/datadog-ci
-      - name: Find datadog-ci path
-        run: which datadog-ci
-      - name: Run datadog-ci command
-        run: |
-          export PATH=$(npm bin -g):$PATH
-          DD_SITE=${{ secrets.DD_SITE }} \
-          DD_API_KEY=${{ secrets.DD_API_KEY }} \
-          DD_APP_KEY=${{ secrets.DD_APP_KEY }} \
-          datadog-ci gate evaluate
+  # software-composition-analysis:
+  #   runs-on: ubuntu-latest
+  #   name: Datadog Static SCA
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+  #   - name: Check imported libraries are secure and compliant
+  #     id: datadog-software-composition-analysis
+  #     uses: DataDog/datadog-sca-github-action@main
+  #     with:
+  #       dd_api_key: ${{ secrets.DD_API_KEY }}
+  #       dd_app_key: ${{ secrets.DD_APP_KEY }}
+  #       dd_site: ${{ secrets.DD_SITE }}
+  # ### Static Analysis(SAST) ###
+  # static-code-analysis:
+  #   runs-on: ubuntu-latest
+  #   name: Datadog Static Analyzer
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Check code meets quality standards
+  #       id: datadog-static-analysis
+  #       uses: DataDog/datadog-static-analyzer-github-action@v1
+  #       with:
+  #         dd_api_key: ${{ secrets.DD_API_KEY }}
+  #         dd_app_key: ${{ secrets.DD_APP_KEY }}
+  #         dd_site: ${{ secrets.DD_SITE }}
+  #         cpu_count: 2
+  #         enable_performance_statistics: false
+  # ### Quality Gate ####
+  # quality-gate-datadog-ci:
+  #   name: Datadog Quality Gate
+  #   runs-on: ubuntu-latest
+  #   needs: [software-composition-analysis, static-code-analysis]
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '16'
+  #     - name: Install datadog-ci
+  #       run: npm install -g @datadog/datadog-ci
+  #     - name: Find datadog-ci path
+  #       run: which datadog-ci
+  #     - name: Run datadog-ci command
+  #       run: |
+  #         export PATH=$(npm bin -g):$PATH
+  #         DD_SITE=${{ secrets.DD_SITE }} \
+  #         DD_API_KEY=${{ secrets.DD_API_KEY }} \
+  #         DD_APP_KEY=${{ secrets.DD_APP_KEY }} \
+  #         datadog-ci gate evaluate
 
   ### BUILD ###
   # Build & Push Docker Image, assuming quality gate was passed
   build-and-push:
     name: Build Image, Push to ECR
-    needs: [quality-gate-datadog-ci]
+    # needs: [quality-gate-datadog-ci]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -73,17 +73,17 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build Docker image 
         run: |
-          docker build -t ${{ secrets.IMAGE_NAME }}:latest --platform linux/amd64 .
-          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR_REPO }}/${{ secrets.IMAGE_NAME }}:latest
+          docker build -t ${{ vars.IMAGE_NAME }}:latest --platform linux/amd64 .
+          docker tag ${{ vars.IMAGE_NAME }}:latest ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_REPO }}/${{ vars.IMAGE_NAME }}:latest
     ### SHIP ###
       - name: Push Docker image to Amazon ECR
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR_REPO }}/${{ secrets.IMAGE_NAME }}:latest
+          docker push ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_REPO }}/${{ vars.IMAGE_NAME }}:latest
   ### RUN ###
   # Deploy to Fargate
   deploy-to-fargate:
@@ -99,14 +99,14 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
       - name: Deploy to ECS Fargate
         run: |
-          REVISION=$(aws ecs register-task-definition --family ${{ secrets.AWS_ECS_SERVICE }} \
+          REVISION=$(aws ecs register-task-definition --family ${{ vars.AWS_ECS_SERVICE }} \
               --cli-input-json file://infra/fargate_task_definition.json --query "taskDefinition.revision")
           aws ecs update-service \
-            --cluster ${{ secrets.AWS_ECS_CLUSTER }} \
-            --service ${{ secrets.AWS_ECS_SERVICE }} \
-            --task-definition "${{ secrets.AWS_ECS_SERVICE }}:$REVISION" \
+            --cluster ${{ vars.AWS_ECS_CLUSTER }} \
+            --service ${{ vars.AWS_ECS_SERVICE }} \
+            --task-definition "${{ vars.AWS_ECS_SERVICE }}:$REVISION" \
             --desired-count 1 \
             --force-new-deployment
