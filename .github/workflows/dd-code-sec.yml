@@ -62,7 +62,7 @@ jobs:
   # Build & Push Docker Image, assuming quality gate was passed
   build-and-push:
     name: Build Image, Push to ECR
-    # needs: [quality-gate-datadog-ci]
+    needs: [quality-gate-datadog-ci]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
