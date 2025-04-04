@@ -12,15 +12,11 @@ This tutorial demonstrates incorporating Datadog Code Security into a CI/CD pipe
 
 ### Github 
 
-- Fork this repo
-
-```sh
-git clone https://github.com/mdorn/dd-code-sec-cicd-tutorial.git
-```
-
-
+Fork this repo, and clone it locally - you'll be making commits to the repo, so you'll likely want to use SSH.
 
 #### Repository secrets
+
+Add the following key/value pairs to your Github repo:
 
 ```
 AWS_ACCESS_KEY_ID
@@ -36,10 +32,12 @@ AWS_ACCOUNT_ID=[Your AWS Account ID]
 AWS_ECR_REPO=dd-sec-demo-repo
 AWS_ECS_CLUSTER=dd-sec-demo-cluster
 AWS_ECS_SERVICE=dd-sec-demo-service
-AWS_REGION=[Your AWS region]
+AWS_REGION=us-east-2
 DD_SITE=datadoghq.com
 IMAGE_NAME=dd-sec-simple-vuln-app
 ```
+
+IMPORTANT: You can change `AWS_REGION`, but make sure it matches the variable in your Terraform config (see below).
 
 ### Datadog 
 
