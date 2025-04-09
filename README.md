@@ -256,8 +256,14 @@ git push origin main
 ```
 
 - Observe in the Github action that the Quality Gate prevents the vulnerable branch from being merged and the application from being with faulty code.
+
+![alt text](docs/img/image-4.png)
+
 - Observe the automated comments made on the PR.
 - Observe in Datadog that the Quality Gate blocked the deployment.
+
+![alt text](docs/img/image-5/image.png)
+
 
 ## Clean up
 
