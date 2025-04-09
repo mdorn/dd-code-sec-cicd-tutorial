@@ -1,22 +1,18 @@
+data "http" "ip" {
+  url = "https://ifconfig.me/ip"
+}
+
 resource "aws_security_group" "ecs_sg" {
   name        = "${var.prefix}-ecs-sg"
   description = "Security group for ECS cluster"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "Allow HTTP traffic"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     description = "Allow port 5000"
     from_port   = 5000
     to_port     = 5000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${data.http.ip.response_body}/32"]
   }
 
   ingress {
@@ -24,7 +20,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port   = 8000
     to_port     = 8000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${data.http.ip.response_body}/32"]
   }
 
   egress {
