@@ -243,7 +243,7 @@ In the Datadog console, go to Software Delivery > Quality Gates. Create two rule
 
 ## Attempt to reintroduce vulnerabilities into application
 
-This time we won't create a PR in Github - we'll just merge the vulnerable branch to main from the command line and observe the result
+Merge the `vuln-branch` branch to `main` from the command line and observe the result. (NOTE: This is a shortcut - if desired, alternatively create a new branch (e.g. `vuln-branch-2`) to introduce the vulnerabilities and create a PR in Github, repeating the earlier steps to do this.)
 
 ```sh
 git checkout main
