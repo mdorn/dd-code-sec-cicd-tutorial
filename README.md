@@ -262,8 +262,7 @@ git push origin main
 - Observe the automated comments made on the PR.
 - Observe in Datadog that the Quality Gate blocked the deployment.
 
-![alt text](docs/img/image-5/image.png)
-
+![alt text](docs/img/image-5.png)
 
 ## Clean up
 
