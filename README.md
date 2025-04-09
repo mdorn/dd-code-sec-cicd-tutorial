@@ -34,11 +34,11 @@ This tutorial demonstrates incorporating Datadog Code Security into a CI/CD pipe
 
 ### Github 
 
-Clone this repo to your Github account and check it out locally.
+Fork or [duplicate](https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository) this repo to your Github account and check it out locally.
 
 #### Repository secrets
 
-Add the following key/value pairs to your Github repo:
+Add the following key/value pairs to your Github repo, under Settings > Secrets and Variables > Actions
 
 ```
 AWS_ACCESS_KEY_ID=<your IAM user's access key id>
@@ -65,15 +65,20 @@ IMPORTANT: You can change `AWS_REGION`, but make sure it matches the variable in
 
 #### Github repo integration
 
-TODO - including automated pull request comments.
+- Install the Github https://docs.datadoghq.com/integrations/github/ integration and be sure your repo is in scope.
+- Configure the app for [GitHub Pull Requests](https://docs.datadoghq.com/security/code_security/dev_tool_int/github_pull_requests/)
+- Go to your Github [organization settings](https://github.com/settings/profile) and click "Applications".  For the Datadog Github app, either allow "All repositories" for your account or choose the repo you created for this tutorial.
 
 ## Deploy AWS infrastructure and application
 
 The included Terraform code will create an ECR repo and an ECS cluster, service, and task configuration.  The deployment includes a sample container to help ensure the deployment was successful before trying to deploy our application to ECS.
 
+Ensure you're authenticated for CLI access to your AWS account before running the following.
+
 ```sh
 cp infra/terraform/terraform.tfvars.sample infra/terraform/terraform.tfvars
 # ^^^ Optionally change the values before executing terraform: default region is us-east-2
+terraform -chdir=infra/terraform init
 terraform -chdir=infra/terraform apply
 # answer "yes" to the prompt
 # after a minute or two (the IP may not be immediately available)
@@ -104,11 +109,11 @@ Hello World
 Now we'll introduce vulnerabilities into our application and deploy it.
 
 ```sh
-git checkout -b clean-branch  # save this branch for later
-git checkout -b vuln-branch 
+git checkout -b clean-branch  # save for later
+git checkout -b vuln-branch
 git mv .github/workflows/dd-code-sec.yml.DISABLED .github/workflows/dd-code-sec.yml
 # introduce SCA vulns first
-cp requirements.vulnerable.txt requirements.txt
+cp requirements.txt.VULNERABLE requirements.txt
 ```
 
 In `app.py`, uncomment line 30 and comment line 31 to introduce a SQL Injection vulnerabilty.
@@ -131,8 +136,10 @@ git push origin vuln-branch
 
 ### Create and Merge Pull Request in Github
 
+- NOTE: before proceeding, ensure you don't have any Quality Gate rules configured that might be triggered by an action on this repo.
 - Observe the automated PR comments and merge it to main branch.  Do NOT delete the branch.
-- TODO (more detail)
+
+![alt text](docs/img/image.png)
 
 ### Confirm vulnerability in running application
 
@@ -158,24 +165,40 @@ Now confirm the app has a SQL injection vulnerability:
 # valid request to app, returns a user record
 curl "http://${FT_IP}:5000/user?id=1"
 # malicious request to app using SQLi attack returns all records in database
-curl "http://${FT_IP}:5000/user?id=1%20OR%201=1
+curl "http://${FT_IP}:5000/user?id=1%20OR%201=1"
 ```
+
+Oh no! App (and library) vulnerabilities have made it into production!
 
 ### Investigate application vulnerabilities in Datadog Code Security console
 
-TODO
+In the Datadog console, go to Security > Code Security > Repositories, click into the repo you connected and note that vulnerabilities were flagged in both your Python application code:
+
+![alt text](docs/img/image-1.png)
+
+and your third-party libraries:
+
+![alt text](docs/img/image-2.png)
 
 ## Restore application without vulnerabilities
 
-Restore clean branch of repo without vulnerabilities, and redeploy the application:
+Revert the vulnerabilities you introduced and redeploy the application by first updating our main branch with the clean branch without vulnerabilities.
 
 ```sh
+git checkout main
+git pull origin main
 git checkout clean-branch
-git mv .github/workflows/dd-code-sec.yml.DISABLED .github/workflows/dd-code-sec.yml
-git push origin clean-branch
+git merge -s ours main
+git checkout main
+git merge clean-branch
+git push origin main
 ```
 
-In Github, create a pull request to merge `clean-branch` to the `main` branch.  This will trigger the Github workflow to redeploy the application to your AWS infrastructure.
+This will trigger the Github workflow to redeploy the application to your AWS infrastructure; the entire Github workflow should successfully complete:
+
+![alt text](docs/img/image-3.png)
+
+Confirm successful deployment as follows:
 
 ```sh
 # Note the Fargate task IP will have changed since the last deployment. The redeployment may take a few minutes to complete.
@@ -195,17 +218,43 @@ Confirm the SQL injection vulnerability has been resolved:
 # valid request to app, returns a user record
 curl "http://${FT_IP}:5000/user?id=1"
 # malicious request to app should return an harmless response: []
-curl "http://${FT_IP}:5000/user?id=1%20OR%201=1
+curl "http://${FT_IP}:5000/user?id=1%20OR%201=1"
 ```
 
 ## Configure a Quality Gate in Datadog to ensure vulnerable code cannot be deployed
 
-TODO
+In the Datadog console, go to Software Delivery > Quality Gates. Create two rules:
+
+### Rule 1: No critical code security violations (SAST)
+
+- Rule type: Static Analysis
+- Rule scope: Either choose "always evaluate" or constrain it to your repo.
+- Rule conditions: use the default: error >= 1
+- Rule name: "No critical code security violations"
+- Gate behavior: Blocking
+
+### Rule 2: No dependencies with vulnerabilities (SCA)
+
+- Rule type: SCA
+- Rule scope: Either choose "always evaluate" or constrain it to your repo.
+- Rule conditions: use the default: critical or high >= 1
+- Rule name: "No dependencies with vulnerabilities"
+- Gate behavior: Blocking
 
 ## Attempt to reintroduce vulnerabilities into application
 
-- Create new pull request from `vuln-branch` -> `main`
-- Attempt to merge the PR to the main branch.
+This time we won't create a PR in Github - we'll just merge the vulnerable branch to main from the command line and observe the result
+
+```sh
+git checkout main
+git pull origin main
+git checkout vuln-branch
+git merge -s ours main
+git checkout main
+git merge vuln-branch
+git push origin main
+```
+
 - Observe in the Github action that the Quality Gate prevents the vulnerable branch from being merged and the application from being with faulty code.
 - Observe the automated comments made on the PR.
 - Observe in Datadog that the Quality Gate blocked the deployment.
@@ -219,4 +268,3 @@ terraform -chdir=infra/terraform destroy
 ```
 
 NOTE: ECS task definitions remain, you can delete those manually if desired.
-
