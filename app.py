@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
-import time
 import random
 import sqlite3
 
-VERSION=1
+VERSION = 1
 app = Flask(__name__)
+
 
 @app.route('/')
 def index():
@@ -37,7 +37,6 @@ def get_records():
 @app.route('/random')
 def get_random_numbers():
     '''Function with intentional misuse of random.randrange function'''
-    id = 1
     # sql = f"SELECT id,description FROM notes WHERE id = {id}"
     # numbers = [random.randrange(10) for _ in range(10)]  # VULNERABLE
     numbers = [random.randint(0, 5) for _ in range(10)]  # NOT VULNERABLE (better yet, use secrets module)
