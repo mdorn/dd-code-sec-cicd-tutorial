@@ -1,5 +1,5 @@
 data "http" "ip" {
-  url = "https://ifconfig.me/ip"
+  url = "https://api.ipify.org"
 }
 
 resource "aws_security_group" "ecs_sg" {

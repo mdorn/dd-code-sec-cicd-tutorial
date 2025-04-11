@@ -28,7 +28,9 @@ This tutorial demonstrates incorporating Datadog Code Security into a CI/CD pipe
 ## Prerequisites
 
 - AWS account
-- Terraform
+- [Properly configured](https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account) Github account - you will be interacting with your forked repo from the command line via `git` so ensure you're set up to do so.
+- [Terraform](https://developer.hashicorp.com/terraform/install)
+- Optional: [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) (useful for debugging connectivity with AWS before running Terraform scripts)
 
 ## Code repo setup
 
@@ -49,6 +51,8 @@ DD_APP_KEY=<your Datadog application key>
 
 #### Repository variables
 
+> NOTE: If you will be deploying into a shared AWS environment, you may want to consider changing the `prefix` variable in `infra/terraform/terraform.tfvars` before the later deployment step to something sure to be unique to avoid name collisions, and change `dd-sec-demo` in the values below to reflect that prefix. If not, you may proceed without changes.  Similarly, you may change `AWS_REGION` but it must correspond to the value in `terraform.tfvars`.
+
 ```
 AWS_ACCOUNT_ID=<Your AWS Account ID>
 AWS_ECR_REPO=dd-sec-demo-repo
@@ -58,8 +62,6 @@ AWS_REGION=us-east-2
 DD_SITE=datadoghq.com
 IMAGE_NAME=dd-sec-simple-vuln-app
 ```
-
-IMPORTANT: You can change `AWS_REGION`, but make sure it matches the variable in your Terraform config (see below).
 
 ### Datadog 
 
@@ -73,11 +75,11 @@ IMPORTANT: You can change `AWS_REGION`, but make sure it matches the variable in
 
 The included Terraform code will create an ECR repo and an ECS cluster, service, and task configuration.  The deployment includes a sample container to help ensure the deployment was successful before trying to deploy our application to ECS.
 
-Ensure you're authenticated for CLI access to your AWS account before running the following.
+Ensure you're authenticated for appropriate CLI access to your AWS account before running the following.  By default the scripts assume that `AWS_ACCESS_KEY_ID`, `AWS_ACCESS_KEY_SECRET`, and `AWS_REGION` are set.
 
 ```sh
 cp infra/terraform/terraform.tfvars.sample infra/terraform/terraform.tfvars
-# ^^^ Optionally change the values before executing terraform: default region is us-east-2
+# ^^^ Optionally change the values before executing terraform, e.g. prefix and AWS region
 terraform -chdir=infra/terraform init
 terraform -chdir=infra/terraform apply
 # answer "yes" to the prompt
