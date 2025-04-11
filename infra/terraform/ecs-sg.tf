@@ -1,5 +1,5 @@
 data "http" "ip" {
-  url = "https://api.ipify.org"
+  url = "https://checkip.amazonaws.com"
 }
 
 resource "aws_security_group" "ecs_sg" {
@@ -12,7 +12,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port   = 5000
     to_port     = 5000
     protocol    = "tcp"
-    cidr_blocks = ["${data.http.ip.response_body}/32"]
+    cidr_blocks = ["${chomp(data.http.ip.response_body)}/32"]
   }
 
   ingress {
@@ -20,7 +20,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port   = 8000
     to_port     = 8000
     protocol    = "tcp"
-    cidr_blocks = ["${data.http.ip.response_body}/32"]
+    cidr_blocks = ["${chomp(data.http.ip.response_body)}/32"]
   }
 
   egress {
