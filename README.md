@@ -23,7 +23,7 @@
 
 ## Overview
 
-This tutorial demonstrates incorporating Datadog Code Security into a CI/CD pipeline (using Github actions) for a Python Flask application running on AWS Fargate with minimal infrastrcuture (an ECR repo and ECS cluster and service with a Fargate task definition will be created).
+This tutorial demonstrates incorporating Datadog Code Security into a CI/CD pipeline (using Github actions) for a Python Flask application running on AWS Fargate with minimal infrastructure (an ECR repo and ECS cluster and service with a Fargate task definition will be created).
 
 ## Prerequisites
 
