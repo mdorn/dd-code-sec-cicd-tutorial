@@ -51,13 +51,11 @@ DD_APP_KEY=<your Datadog application key>
 
 #### Repository variables
 
-> NOTE: If you will be deploying into a shared AWS environment, you may want to consider changing the `prefix` variable in `infra/terraform/terraform.tfvars` before the later deployment step to something sure to be unique to avoid name collisions, and change `dd-sec-demo` in the values below to reflect that prefix. If not, you may proceed without changes.  Similarly, you may change `AWS_REGION` but it must correspond to the value in `terraform.tfvars`.
+> NOTE: If you will be deploying into a shared AWS environment, consider changing the `prefix` variable below and in `infra/terraform/terraform.tfvars` to something unique to avoid name collisions (below `dd-sec-demo` is the example used). If not, you may proceed without changes.  Similarly, you may change `AWS_REGION` but it must correspond to the value in `terraform.tfvars`.
 
 ```
 AWS_ACCOUNT_ID=<Your AWS Account ID>
-AWS_ECR_REPO=dd-sec-demo-repo
-AWS_ECS_CLUSTER=dd-sec-demo-cluster
-AWS_ECS_SERVICE=dd-sec-demo-service
+PREFIX=dd-sec-demo
 AWS_REGION=us-east-2
 DD_SITE=datadoghq.com
 IMAGE_NAME=dd-sec-simple-vuln-app
@@ -78,6 +76,7 @@ The included Terraform code will create an ECR repo and an ECS cluster, service,
 Ensure you're authenticated for appropriate CLI access to your AWS account before running the following.  By default the scripts assume that `AWS_ACCESS_KEY_ID`, `AWS_ACCESS_KEY_SECRET`, and `AWS_REGION` are set.
 
 ```sh
+export PREFIX="dd-sec-demo"  # or your unique prefix - see note above
 cp infra/terraform/terraform.tfvars.sample infra/terraform/terraform.tfvars
 # ^^^ Optionally change the values before executing terraform, e.g. prefix and AWS region
 terraform -chdir=infra/terraform init

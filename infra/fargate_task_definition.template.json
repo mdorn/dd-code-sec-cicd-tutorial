@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "dd-sec-simple-vuln-app",
-      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.us-east-2.amazonaws.com/dd-sec-demo-repo/dd-sec-simple-vuln-app:latest",
+      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.us-east-2.amazonaws.com/${PREFIX}-repo/dd-sec-simple-vuln-app:latest",
       "cpu": 512,
       "memory": 2048,
       "portMappings": [

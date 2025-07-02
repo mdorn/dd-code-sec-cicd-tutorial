@@ -1,5 +1,3 @@
-export PREFIX="dd-sec-demo"
-
 TASK_ARN=$(aws ecs list-tasks --service-name "${PREFIX}-service" --query 'taskArns[0]' --output text --cluster ${PREFIX}-cluster)
 TASK_DETAILS=$(aws ecs describe-tasks --task "${TASK_ARN}" --query 'tasks[0].attachments[0].details' --cluster ${PREFIX}-cluster)
 ENI=$(echo $TASK_DETAILS | jq -r '.[] | select(.name=="networkInterfaceId").value')
