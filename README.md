@@ -138,18 +138,17 @@ git push origin vuln-branch
 ### Create and Merge Pull Request in Github
 
 - NOTE: before proceeding, ensure you don't have any Quality Gate rules configured that might be triggered by an action on this repo.
-- Observe the automated PR comments and merge it to main branch.  Do NOT delete the branch.
+- Go back to the repo in Github and click the "Compare & pull request" button that should now appear at the top, then click "Create pull request."
+- After the checks complete, observe the automated PR comments and merge it to main branch.  Do NOT delete the branch.  This will execute the workflow that will run checks and deploy the application to your AWS infrastructure.  You can click into the "Actions" tab in Github and view the progress if you like.
 
 ![alt text](docs/img/image.png)
 
 ### Confirm vulnerability in running application
 
-Note that after merging the pull request, the Github action deploys the application to your AWS infrastructure.
-
-After the workflow completes:
+The workflow may take a few minutes. After it completes:
 
 ```sh
-# after a minute or two (the IP may not be immediately available):
+# after a minute or two (the IP may not be immediately available even after workflow completes):
 FT_IP=`./scripts/get_fargate_task_ip.sh`
 curl "http://${FT_IP}:5000"
 ```
