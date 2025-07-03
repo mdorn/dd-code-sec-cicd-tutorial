@@ -110,9 +110,10 @@ Hello World
 Now we'll introduce vulnerabilities into our application and deploy it.
 
 ```sh
-git checkout -b clean-branch  # save for later
-git checkout -b vuln-branch
 git mv .github/workflows/dd-code-sec.yml.DISABLED .github/workflows/dd-code-sec.yml
+git checkout -b clean-branch  # save for later
+git commit -a -m "Enable workflow"
+git checkout -b vuln-branch
 # introduce SCA vulns first
 cp requirements.txt.VULNERABLE requirements.txt
 ```
